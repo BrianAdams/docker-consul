@@ -1,0 +1,44 @@
+consulmasterserver:
+  command: -server -bootstrap-expect 3 -config-file /etc/configs/acl.json
+  image: progrium/consul:latest
+  hostname: node_1
+  name: node_1
+  ports:
+    - "27017:27017"
+  volumes:
+    - ~/docker-consul/config:/etc/configs:ro
+
+consulaltserver1:
+  command: -server -join cm  -config-file /etc/configs/acl.json
+  image: progrium/consul:latest
+  hostname: node_2
+  name: node_2
+  links:
+    - consulmasterserver:cm
+  volumes:
+    - ~/docker-consul/config:/etc/configs:ro
+
+consulaltserver2:
+  command: -server -join cm  -config-file /etc/configs/acl.json
+  image: progrium/consul:latest
+  hostname: node_3
+  name: node_3
+  links:
+    - consulmasterserver:cm
+  volumes:
+    - ~/docker-consul/config:/etc/configs:ro
+
+consulaltagent:
+  command: -join cm -config-file /etc/configs/acl.json
+  image: progrium/consul:latest
+  ports:
+  - "8300:8300"
+  - "8400:8400"
+  - "8500:8500"
+  - "8600:53/udp"
+  hostname: node_4
+  name: node_4
+  links:
+    - consulmasterserver:cm
+  volumes:
+    - ~/docker-consul/config:/etc/configs:ro
